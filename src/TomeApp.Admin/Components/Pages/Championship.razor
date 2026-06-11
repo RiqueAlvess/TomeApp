@@ -1,6 +1,4 @@
 @page "/championship"
-@using TomeApp.Admin.Models
-@using TomeApp.Admin.Services
 @inject AdminService AdminService
 @rendermode InteractiveServer
 
@@ -52,15 +50,29 @@ else
                 </tr>
             </thead>
             <tbody>
-                @{int rank = 1;}
+                @{ int rank = 1; }
                 @foreach (var entry in _entries)
                 {
-                    <tr class="@(rank <= 3 ? "top-rank" : "")">
+                    var rowClass = rank <= 3 ? "top-rank" : "";
+                    var auditRowClass = s_SuspiciousClass;
+                    <tr class="@rowClass">
                         <td>
-                            @if (rank == 1) { <span class="medal gold">🥇</span> }
-                            else if (rank == 2) { <span class="medal silver">🥈</span> }
-                            else if (rank == 3) { <span class="medal bronze">🥉</span> }
-                            else { <span class="rank-num">@rank</span> }
+                            @if (rank == 1)
+                            {
+                                <span class="medal gold">🥇</span>
+                            }
+                            else if (rank == 2)
+                            {
+                                <span class="medal silver">🥈</span>
+                            }
+                            else if (rank == 3)
+                            {
+                                <span class="medal bronze">🥉</span>
+                            }
+                            else
+                            {
+                                <span class="rank-num">@rank</span>
+                            }
                         </td>
                         <td class="user-name">@(entry.UserName ?? "–")</td>
                         <td class="user-email">@(entry.UserEmail ?? "–")</td>
@@ -103,11 +115,19 @@ else
                                     else
                                     {
                                         <table class="audit-table">
-                                            <thead><tr><th>Data</th><th>Páginas</th><th>Tempo</th><th>Alerta</th></tr></thead>
+                                            <thead>
+                                                <tr>
+                                                    <th>Data</th>
+                                                    <th>Páginas</th>
+                                                    <th>Tempo</th>
+                                                    <th>Alerta</th>
+                                                </tr>
+                                            </thead>
                                             <tbody>
                                                 @foreach (var s in _auditSessions)
                                                 {
-                                                    <tr class="@(s.SuspiciousFlag is not null ? "suspicious" : "")">
+                                                    var sRowClass = s.SuspiciousFlag is not null ? "suspicious" : "";
+                                                    <tr class="@sRowClass">
                                                         <td>@s.Date.ToString("dd/MM HH:mm")</td>
                                                         <td>@s.StartPage → @s.EndPage</td>
                                                         <td>@FormatMinutes(s.MinutesRead)</td>
@@ -121,7 +141,7 @@ else
                             </td>
                         </tr>
                     }
-                    rank++;
+                    @{ rank++; }
                 }
             </tbody>
         </table>
@@ -129,6 +149,8 @@ else
 }
 
 @code {
+    private static readonly string s_SuspiciousClass = string.Empty;
+
     private List<ChampionshipView>? _entries;
     private int _month = DateTime.Now.Month;
     private int _year = DateTime.Now.Year;
