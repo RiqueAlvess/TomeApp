@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:TomeApp.Mobile.ViewModels"
+             x:Class="TomeApp.Mobile.Views.ProfilePage"
+             x:DataType="vm:ProfileViewModel"
+             Title="Perfil">
+
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="24">
+
+            <!-- Profile Header -->
+            <StackLayout Spacing="12" HorizontalOptions="Center">
+                <Border StrokeShape="RoundRectangle 60" WidthRequest="100" HeightRequest="100"
+                        Stroke="{StaticResource OutlineVariant}" StrokeThickness="2">
+                    <Image Source="{Binding AvatarUrl}" Aspect="AspectFill" />
+                </Border>
+                <Label Text="{Binding Name}" FontFamily="PlayfairBold" FontSize="24"
+                       TextColor="{StaticResource OnSurface}" HorizontalOptions="Center" />
+                <Label Text="{Binding Email}" FontSize="14" TextColor="{StaticResource OnSurfaceVariant}"
+                       HorizontalOptions="Center" />
+                <Label Text="{Binding Bio}" FontSize="14" TextColor="{StaticResource OnSurfaceVariant}"
+                       HorizontalOptions="Center" HorizontalTextAlignment="Center"
+                       IsVisible="{Binding Bio, Converter={StaticResource StringNotEmptyConverter}}" />
+            </StackLayout>
+
+            <!-- Stats Grid -->
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+                <Border Grid.Column="0" StrokeShape="RoundRectangle 16" BackgroundColor="{StaticResource SurfaceContainer}"
+                        Stroke="{StaticResource OutlineVariant}" StrokeThickness="0.5" Padding="12,16">
+                    <StackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Text="📚" FontSize="24" HorizontalOptions="Center" />
+                        <Label Text="{Binding TotalBooksRead}" FontFamily="PlayfairBold" FontSize="24"
+                               TextColor="{StaticResource Primary}" HorizontalOptions="Center" />
+                        <Label Text="Lidos" FontSize="11" TextColor="{StaticResource OnSurfaceVariant}" HorizontalOptions="Center" />
+                    </StackLayout>
+                </Border>
+                <Border Grid.Column="1" StrokeShape="RoundRectangle 16" BackgroundColor="{StaticResource SurfaceContainer}"
+                        Stroke="{StaticResource OutlineVariant}" StrokeThickness="0.5" Padding="12,16">
+                    <StackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Text="📖" FontSize="24" HorizontalOptions="Center" />
+                        <Label Text="{Binding TotalPagesRead}" FontFamily="PlayfairBold" FontSize="24"
+                               TextColor="{StaticResource Secondary}" HorizontalOptions="Center" />
+                        <Label Text="Páginas" FontSize="11" TextColor="{StaticResource OnSurfaceVariant}" HorizontalOptions="Center" />
+                    </StackLayout>
+                </Border>
+                <Border Grid.Column="2" StrokeShape="RoundRectangle 16" BackgroundColor="{StaticResource SurfaceContainer}"
+                        Stroke="{StaticResource OutlineVariant}" StrokeThickness="0.5" Padding="12,16">
+                    <StackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Text="⭐" FontSize="24" HorizontalOptions="Center" />
+                        <Label Text="{Binding AverageRating, StringFormat='{0:F1}'}" FontFamily="PlayfairBold" FontSize="24"
+                               TextColor="{StaticResource Primary}" HorizontalOptions="Center" />
+                        <Label Text="Média" FontSize="11" TextColor="{StaticResource OnSurfaceVariant}" HorizontalOptions="Center" />
+                    </StackLayout>
+                </Border>
+            </Grid>
+
+            <!-- Settings -->
+            <StackLayout Spacing="4">
+                <Label Text="Conta" FontFamily="InterSemiBold" FontSize="12" LetterSpacing="1.5"
+                       TextColor="{StaticResource OnSurfaceVariant}" Margin="4,0,0,8" />
+                <Border StrokeShape="RoundRectangle 12" BackgroundColor="White"
+                        Stroke="{StaticResource OutlineVariant}" StrokeThickness="0.5">
+                    <StackLayout Spacing="0">
+                        <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto">
+                            <Label Grid.Column="0" Text="👤" FontSize="18" VerticalOptions="Center" Margin="0,0,12,0" />
+                            <Label Grid.Column="1" Text="Dados Pessoais" FontSize="15" TextColor="{StaticResource OnSurface}" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource OnSurfaceVariant}" VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView HeightRequest="0.5" Color="{StaticResource OutlineVariant}" Margin="16,0" />
+                        <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto">
+                            <Label Grid.Column="0" Text="🔔" FontSize="18" VerticalOptions="Center" Margin="0,0,12,0" />
+                            <Label Grid.Column="1" Text="Notificações" FontSize="15" TextColor="{StaticResource OnSurface}" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource OnSurfaceVariant}" VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView HeightRequest="0.5" Color="{StaticResource OutlineVariant}" Margin="16,0" />
+                        <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto">
+                            <Label Grid.Column="0" Text="🔒" FontSize="18" VerticalOptions="Center" Margin="0,0,12,0" />
+                            <Label Grid.Column="1" Text="Privacidade e Segurança" FontSize="15" TextColor="{StaticResource OnSurface}" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Text="›" FontSize="20" TextColor="{StaticResource OnSurfaceVariant}" VerticalOptions="Center" />
+                        </Grid>
+                    </StackLayout>
+                </Border>
+            </StackLayout>
+
+            <!-- Logout -->
+            <Button Text="Sair da Conta" Command="{Binding LogoutCommand}"
+                    BackgroundColor="Transparent" TextColor="{StaticResource Error}"
+                    BorderColor="{StaticResource Error}" BorderWidth="1"
+                    FontFamily="InterSemiBold" CornerRadius="12" HeightRequest="52"
+                    Margin="0,8,0,32" />
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

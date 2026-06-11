@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <Color x:Key="Primary">#b32349</Color>
+    <Color x:Key="PrimaryContainer">#ff5e7e</Color>
+    <Color x:Key="Secondary">#944a19</Color>
+    <Color x:Key="SecondaryContainer">#fe9e66</Color>
+    <Color x:Key="Surface">#fff8f5</Color>
+    <Color x:Key="SurfaceContainer">#f5ece7</Color>
+    <Color x:Key="SurfaceContainerHigh">#efe6e2</Color>
+    <Color x:Key="SurfaceContainerHighest">#e9e1dc</Color>
+    <Color x:Key="OnSurface">#1e1b18</Color>
+    <Color x:Key="OnSurfaceVariant">#594143</Color>
+    <Color x:Key="OutlineVariant">#e0bec1</Color>
+    <Color x:Key="Error">#ba1a1a</Color>
+    <Color x:Key="OnPrimary">#ffffff</Color>
+
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}" />
+    <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource Surface}" />
+    <SolidColorBrush x:Key="SurfaceContainerBrush" Color="{StaticResource SurfaceContainer}" />
+</ResourceDictionary>

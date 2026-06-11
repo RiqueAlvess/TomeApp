@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TomeApp.Mobile.Views.BookDetailPage"
+             Title="{Binding Title}">
+
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="20">
+
+            <!-- Cover + Info -->
+            <Grid ColumnDefinitions="120,*" ColumnSpacing="16">
+                <Border Grid.Column="0" StrokeShape="RoundRectangle 12" HeightRequest="180"
+                        Stroke="{StaticResource OutlineVariant}" StrokeThickness="0.5">
+                    <Image Source="{Binding CoverUrl}" Aspect="AspectFill" />
+                </Border>
+                <StackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center">
+                    <Label Text="{Binding Title}" FontFamily="PlayfairBold" FontSize="20"
+                           TextColor="{StaticResource OnSurface}" />
+                    <Label Text="{Binding Author}" FontSize="14" TextColor="{StaticResource OnSurfaceVariant}"
+                           FontAttributes="Italic" />
+                    <Label Text="{Binding Genre}" FontSize="13" TextColor="{StaticResource Primary}"
+                           IsVisible="{Binding Genre, Converter={StaticResource StringNotEmptyConverter}}" />
+                    <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource PrimaryContainer}"
+                            Padding="10,5" HorizontalOptions="Start">
+                        <Label Text="{Binding Status}" FontSize="12" FontFamily="InterSemiBold" TextColor="White" />
+                    </Border>
+                </StackLayout>
+            </Grid>
+
+            <!-- Progress -->
+            <Border StrokeShape="RoundRectangle 16" BackgroundColor="{StaticResource SurfaceContainer}"
+                    Stroke="{StaticResource OutlineVariant}" StrokeThickness="0.5" Padding="16">
+                <StackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0" FontFamily="InterSemiBold" FontSize="14"
+                               TextColor="{StaticResource OnSurface}">
+                            <Label.Text>
+                                <MultiBinding StringFormat="Página {0} de {1}">
+                                    <Binding Path="CurrentPage" />
+                                    <Binding Path="TotalPages" />
+                                </MultiBinding>
+                            </Label.Text>
+                        </Label>
+                        <Label Grid.Column="1" Text="{Binding ProgressPercent, StringFormat='{0}%'}"
+                               FontFamily="InterSemiBold" TextColor="{StaticResource Primary}" />
+                    </Grid>
+                    <ProgressBar Progress="{Binding ProgressPercent, Converter={StaticResource PercentToDecimalConverter}}"
+                                 ProgressColor="{StaticResource Primary}" HeightRequest="6" />
+                </StackLayout>
+            </Border>
+
+            <!-- Actions -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Grid.Column="0" Text="▶ Ler agora" Clicked="OnReadNowClicked"
+                        Style="{StaticResource PrimaryButtonStyle}" HeightRequest="52" />
+                <Button Grid.Column="1" Text="✏ Editar" Clicked="OnEditClicked"
+                        BackgroundColor="{StaticResource SurfaceContainerHigh}"
+                        TextColor="{StaticResource OnSurface}" FontFamily="InterSemiBold"
+                        CornerRadius="12" HeightRequest="52" />
+            </Grid>
+
+            <!-- Sessions History -->
+            <Label Text="Histórico de Sessões" FontFamily="InterSemiBold" FontSize="16"
+                   TextColor="{StaticResource OnSurface}" />
+            <CollectionView x:Name="SessionsList" ItemsSource="{Binding Sessions}" HeightRequest="200">
+                <CollectionView.EmptyView>
+                    <Label Text="Nenhuma sessão de leitura ainda." Style="{StaticResource SubtitleStyle}"
+                           HorizontalOptions="Center" Margin="0,20" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="0,8" ColumnDefinitions="*,Auto,Auto">
+                            <Label Grid.Column="0" Text="{Binding DeviceRecordedAt, StringFormat='{0:dd/MM HH:mm}'}"
+                                   Style="{StaticResource SubtitleStyle}" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="{Binding MinutesRead, StringFormat='{0}min'}"
+                                   FontFamily="InterSemiBold" TextColor="{StaticResource Secondary}"
+                                   VerticalOptions="Center" Margin="0,0,16,0" />
+                            <Label Grid.Column="2" FontSize="12" TextColor="{StaticResource OnSurfaceVariant}" VerticalOptions="Center">
+                                <Label.Text>
+                                    <MultiBinding StringFormat="p.{0}→{1}">
+                                        <Binding Path="StartPage" />
+                                        <Binding Path="EndPage" />
+                                    </MultiBinding>
+                                </Label.Text>
+                            </Label>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Delete -->
+            <Button Text="Remover da biblioteca" Clicked="OnDeleteClicked"
+                    BackgroundColor="Transparent" TextColor="{StaticResource Error}"
+                    BorderColor="{StaticResource Error}" BorderWidth="1"
+                    FontFamily="InterSemiBold" CornerRadius="12" HeightRequest="48" Margin="0,8,0,32" />
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                    xmlns:conv="clr-namespace:TomeApp.Mobile.Converters">
+
+    <conv:PercentToDecimalConverter x:Key="PercentToDecimalConverter" />
+    <conv:InverseBoolConverter x:Key="InverseBoolConverter" />
+    <conv:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
+    <conv:BookStatusToStringConverter x:Key="BookStatusToStringConverter" />
+
+    <Style TargetType="ContentPage" ApplyToDerivedTypes="True">
+        <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="HeadlineStyle">
+        <Setter Property="FontFamily" Value="PlayfairBold" />
+        <Setter Property="FontSize" Value="28" />
+        <Setter Property="TextColor" Value="{StaticResource OnSurface}" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="TitleStyle">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="TextColor" Value="{StaticResource OnSurface}" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="SubtitleStyle">
+        <Setter Property="FontFamily" Value="Inter" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextColor" Value="{StaticResource OnSurfaceVariant}" />
+    </Style>
+
+    <Style TargetType="Button" x:Key="PrimaryButtonStyle">
+        <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+        <Setter Property="TextColor" Value="{StaticResource OnPrimary}" />
+        <Setter Property="FontFamily" Value="InterSemiBold" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="24,14" />
+    </Style>
+
+    <Style TargetType="Entry">
+        <Setter Property="BackgroundColor" Value="{StaticResource SurfaceContainer}" />
+        <Setter Property="TextColor" Value="{StaticResource OnSurface}" />
+        <Setter Property="PlaceholderColor" Value="{StaticResource OnSurfaceVariant}" />
+        <Setter Property="FontFamily" Value="Inter" />
+        <Setter Property="FontSize" Value="16" />
+    </Style>
+
+    <Style TargetType="Frame" x:Key="CardStyle">
+        <Setter Property="BackgroundColor" Value="White" />
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="HasShadow" Value="True" />
+        <Setter Property="BorderColor" Value="{StaticResource OutlineVariant}" />
+        <Setter Property="Padding" Value="16" />
+    </Style>
+</ResourceDictionary>

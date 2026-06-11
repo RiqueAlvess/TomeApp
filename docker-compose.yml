@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: tomeapp
+      POSTGRES_USER: tomeapp
+      POSTGRES_PASSWORD: tomeapp_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tomeapp"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: tomeapp
+      RABBITMQ_DEFAULT_PASS: tomeapp_secret
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: src/TomeApp.API/Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=tomeapp;Username=tomeapp;Password=tomeapp_secret
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=tomeapp
+      - RabbitMQ__Password=tomeapp_secret
+      - Supabase__Url=${SUPABASE_URL:-http://localhost:54321}
+      - Supabase__AnonKey=${SUPABASE_ANON_KEY:-changeme}
+      - Jwt__Secret=${JWT_SECRET:-dev-secret-change-in-production-min-32-chars}
+      - Jwt__Issuer=tomeapp-api
+      - Jwt__Audience=tomeapp-clients
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  admin:
+    build:
+      context: .
+      dockerfile: src/TomeApp.Admin/Dockerfile
+    ports:
+      - "5001:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ApiBaseUrl=http://api:8080
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=tomeapp;Username=tomeapp;Password=tomeapp_secret
+      - AdminSecret=${ADMIN_SECRET:-admin-dev-secret}
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:

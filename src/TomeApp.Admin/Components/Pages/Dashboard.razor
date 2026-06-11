@@ -1,0 +1,58 @@
+@page "/"
+@using TomeApp.Admin.Services
+@inject AdminService AdminService
+@rendermode InteractiveServer
+
+<PageTitle>Dashboard – TomeApp Admin</PageTitle>
+
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <p class="subtitle">Visão geral do TomeApp Brasil</p>
+</div>
+
+@if (_stats is null)
+{
+    <div class="loading">Carregando...</div>
+}
+else
+{
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="material-symbols-outlined stat-icon" style="color:#b32349">group</span>
+            <div class="stat-value">@_stats.TotalUsers</div>
+            <div class="stat-label">Usuários Cadastrados</div>
+        </div>
+        <div class="stat-card">
+            <span class="material-symbols-outlined stat-icon" style="color:#944a19">local_fire_department</span>
+            <div class="stat-value">@_stats.ActiveToday</div>
+            <div class="stat-label">Lendo Hoje</div>
+        </div>
+        <div class="stat-card">
+            <span class="material-symbols-outlined stat-icon" style="color:#b32349">timer</span>
+            <div class="stat-value">@_stats.TotalSessions</div>
+            <div class="stat-label">Total de Sessões</div>
+        </div>
+        <div class="stat-card">
+            <span class="material-symbols-outlined stat-icon" style="color:#944a19">auto_stories</span>
+            <div class="stat-value">@FormatMinutes(_stats.TotalMinutesRead)</div>
+            <div class="stat-label">Total Lido</div>
+        </div>
+    </div>
+}
+
+@code {
+    private TomeApp.Admin.Services.DashboardStats? _stats;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _stats = await AdminService.GetDashboardStatsAsync();
+    }
+
+    private static string FormatMinutes(int minutes)
+    {
+        if (minutes < 60) return $"{minutes}min";
+        var h = minutes / 60;
+        var m = minutes % 60;
+        return m > 0 ? $"{h}h {m}min" : $"{h}h";
+    }
+}

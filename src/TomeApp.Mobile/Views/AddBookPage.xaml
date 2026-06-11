@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TomeApp.Mobile.Views.AddBookPage"
+             Title="Adicionar Livro">
+
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="16">
+
+            <Label Text="Novo Livro" Style="{StaticResource HeadlineStyle}" Margin="0,8,0,16" />
+
+            <Label Text="Título *" Style="{StaticResource SubtitleStyle}" />
+            <Entry x:Name="TitleEntry" Placeholder="Ex: Dom Quixote"
+                   BackgroundColor="{StaticResource SurfaceContainer}" />
+
+            <Label Text="Autor *" Style="{StaticResource SubtitleStyle}" />
+            <Entry x:Name="AuthorEntry" Placeholder="Ex: Miguel de Cervantes"
+                   BackgroundColor="{StaticResource SurfaceContainer}" />
+
+            <Label Text="Total de páginas *" Style="{StaticResource SubtitleStyle}" />
+            <Entry x:Name="PagesEntry" Placeholder="Ex: 480" Keyboard="Numeric"
+                   BackgroundColor="{StaticResource SurfaceContainer}" />
+
+            <Label Text="Gênero" Style="{StaticResource SubtitleStyle}" />
+            <Entry x:Name="GenreEntry" Placeholder="Ex: Romance, Fantasia, Clássico..."
+                   BackgroundColor="{StaticResource SurfaceContainer}" />
+
+            <Label Text="Status inicial" Style="{StaticResource SubtitleStyle}" />
+            <Picker x:Name="StatusPicker" BackgroundColor="{StaticResource SurfaceContainer}"
+                    TextColor="{StaticResource OnSurface}">
+                <Picker.Items>
+                    <x:String>Quero ler</x:String>
+                    <x:String>Lendo</x:String>
+                    <x:String>Lido</x:String>
+                </Picker.Items>
+            </Picker>
+
+            <Label x:Name="ErrorLabel" TextColor="{StaticResource Error}" FontSize="13"
+                   IsVisible="False" HorizontalOptions="Center" Margin="0,8" />
+
+            <Button Text="Salvar livro" Clicked="OnSaveClicked"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    HeightRequest="56" Margin="0,16,0,32" />
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,57 @@
+@page "/users"
+@using TomeApp.Admin.Models
+@using TomeApp.Admin.Services
+@inject AdminService AdminService
+@rendermode InteractiveServer
+
+<PageTitle>Usuários – TomeApp Admin</PageTitle>
+
+<div class="page-header">
+    <h1>Usuários</h1>
+    <p class="subtitle">Base de leitores cadastrados</p>
+</div>
+
+<div class="filter-bar">
+    <input class="search-input" @bind="_search" @bind:event="oninput" @bind:after="LoadData" placeholder="Buscar por nome ou e-mail..." />
+</div>
+
+@if (_users is null)
+{
+    <div class="loading">Carregando...</div>
+}
+else
+{
+    <div class="table-card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Região</th>
+                    <th>Cadastro</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in _users)
+                {
+                    <tr>
+                        <td class="user-name">@user.Name</td>
+                        <td class="user-email">@user.Email</td>
+                        <td><span class="badge badge-region">@user.Region</span></td>
+                        <td>@user.CreatedAt.ToString("dd/MM/yyyy")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="table-footer">Exibindo @_users.Count usuário(s)</div>
+    </div>
+}
+
+@code {
+    private List<UserView>? _users;
+    private string _search = string.Empty;
+
+    protected override async Task OnInitializedAsync() => await LoadData();
+
+    private async Task LoadData() => _users = await AdminService.GetUsersAsync(_search);
+}

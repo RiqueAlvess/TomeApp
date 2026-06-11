@@ -1,0 +1,18 @@
+@inherits LayoutComponentBase
+
+<div class="admin-shell">
+    <nav class="sidebar">
+        <div class="sidebar-brand">
+            <span class="brand-icon">📚</span>
+            <span class="brand-name">TomeApp Admin</span>
+        </div>
+        <ul class="sidebar-nav">
+            <li><NavLink href="/" Match="NavLinkMatch.All"><span class="material-symbols-outlined">dashboard</span> Dashboard</NavLink></li>
+            <li><NavLink href="/championship"><span class="material-symbols-outlined">emoji_events</span> Campeonato</NavLink></li>
+            <li><NavLink href="/users"><span class="material-symbols-outlined">group</span> Usuários</NavLink></li>
+        </ul>
+    </nav>
+    <main class="main-content">
+        @Body
+    </main>
+</div>

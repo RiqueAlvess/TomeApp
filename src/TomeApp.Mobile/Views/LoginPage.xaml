@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TomeApp.Mobile.Views.LoginPage"
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="{StaticResource Surface}">
+
+    <ScrollView>
+        <StackLayout Padding="32" Spacing="0" VerticalOptions="Center" MinimumHeightRequest="600">
+
+            <!-- Logo / Brand -->
+            <StackLayout Spacing="8" Margin="0,60,0,48" HorizontalOptions="Center">
+                <Label Text="📚" FontSize="60" HorizontalOptions="Center" />
+                <Label Text="TomeApp" FontFamily="PlayfairBold" FontSize="36"
+                       TextColor="{StaticResource Primary}" HorizontalOptions="Center" />
+                <Label Text="Seu diário literário" FontSize="16"
+                       TextColor="{StaticResource OnSurfaceVariant}" HorizontalOptions="Center" />
+            </StackLayout>
+
+            <!-- Tab: Login / Register -->
+            <Grid ColumnDefinitions="*,*" BackgroundColor="{StaticResource SurfaceContainerHighest}"
+                  Margin="0,0,0,28">
+                <Border Grid.Column="0" x:Name="LoginTab" BackgroundColor="{StaticResource Primary}"
+                        StrokeShape="RoundRectangle 10" Margin="2" Padding="0,10">
+                    <Label Text="Entrar" FontFamily="InterSemiBold" FontSize="15"
+                           TextColor="White" HorizontalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="ShowLogin" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </Border>
+                <Border Grid.Column="1" x:Name="RegisterTab" BackgroundColor="Transparent"
+                        StrokeShape="RoundRectangle 10" Margin="2" Padding="0,10">
+                    <Label Text="Criar conta" FontFamily="InterSemiBold" FontSize="15"
+                           TextColor="{StaticResource OnSurfaceVariant}" HorizontalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="ShowRegister" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </Border>
+            </Grid>
+
+            <!-- Login Form -->
+            <StackLayout x:Name="LoginForm" Spacing="14">
+                <Entry x:Name="LoginEmail" Placeholder="E-mail" Keyboard="Email"
+                       BackgroundColor="{StaticResource SurfaceContainer}" Margin="0,0,0,0" />
+                <Entry x:Name="LoginPassword" Placeholder="Senha" IsPassword="True"
+                       BackgroundColor="{StaticResource SurfaceContainer}" />
+                <Label x:Name="LoginError" TextColor="{StaticResource Error}" FontSize="13"
+                       IsVisible="False" HorizontalOptions="Center" />
+                <Button Text="Entrar" Clicked="OnLoginClicked" Style="{StaticResource PrimaryButtonStyle}"
+                        HeightRequest="56" Margin="0,8,0,0" />
+            </StackLayout>
+
+            <!-- Register Form -->
+            <StackLayout x:Name="RegisterForm" IsVisible="False" Spacing="14">
+                <Entry x:Name="RegName" Placeholder="Seu nome" BackgroundColor="{StaticResource SurfaceContainer}" />
+                <Entry x:Name="RegEmail" Placeholder="E-mail" Keyboard="Email"
+                       BackgroundColor="{StaticResource SurfaceContainer}" />
+                <Entry x:Name="RegPassword" Placeholder="Senha (mín. 8 caracteres)" IsPassword="True"
+                       BackgroundColor="{StaticResource SurfaceContainer}" />
+                <Label x:Name="RegError" TextColor="{StaticResource Error}" FontSize="13"
+                       IsVisible="False" HorizontalOptions="Center" />
+                <Button Text="Criar conta gratuita" Clicked="OnRegisterClicked"
+                        Style="{StaticResource PrimaryButtonStyle}" HeightRequest="56" Margin="0,8,0,0" />
+            </StackLayout>
+
+            <ActivityIndicator x:Name="LoadingIndicator" IsRunning="False" IsVisible="False"
+                               Color="{StaticResource Primary}" Margin="0,16,0,0" />
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

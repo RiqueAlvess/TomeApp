@@ -1,0 +1,163 @@
+@page "/championship"
+@using TomeApp.Admin.Models
+@using TomeApp.Admin.Services
+@inject AdminService AdminService
+@rendermode InteractiveServer
+
+<PageTitle>Campeonato – TomeApp Admin</PageTitle>
+
+<div class="page-header">
+    <h1>Campeonato Mensal</h1>
+    <p class="subtitle">Ranking BR – @_monthName/@_year</p>
+</div>
+
+<div class="filter-bar">
+    <label>Mês:</label>
+    <select @bind="_month" @bind:after="LoadData">
+        @for (int m = 1; m <= 12; m++)
+        {
+            var mv = m;
+            <option value="@mv">@new DateTime(2024, mv, 1).ToString("MMMM")</option>
+        }
+    </select>
+    <select @bind="_year" @bind:after="LoadData">
+        @for (int y = DateTime.Now.Year; y >= 2024; y--)
+        {
+            <option value="@y">@y</option>
+        }
+    </select>
+</div>
+
+@if (_entries is null)
+{
+    <div class="loading">Carregando ranking...</div>
+}
+else if (_entries.Count == 0)
+{
+    <div class="empty-state">Nenhum dado para este período.</div>
+}
+else
+{
+    <div class="table-card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Leitor</th>
+                    <th>E-mail</th>
+                    <th>Tempo Total</th>
+                    <th>Prêmio</th>
+                    <th>Auditoria</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{int rank = 1;}
+                @foreach (var entry in _entries)
+                {
+                    <tr class="@(rank <= 3 ? "top-rank" : "")">
+                        <td>
+                            @if (rank == 1) { <span class="medal gold">🥇</span> }
+                            else if (rank == 2) { <span class="medal silver">🥈</span> }
+                            else if (rank == 3) { <span class="medal bronze">🥉</span> }
+                            else { <span class="rank-num">@rank</span> }
+                        </td>
+                        <td class="user-name">@(entry.UserName ?? "–")</td>
+                        <td class="user-email">@(entry.UserEmail ?? "–")</td>
+                        <td><strong>@FormatMinutes(entry.TotalMinutesRead)</strong></td>
+                        <td>
+                            @if (entry.PrizeAwarded)
+                            {
+                                <span class="badge badge-success">✓ Enviado</span>
+                                <div class="prize-detail">@entry.PrizeAwardedAt?.ToString("dd/MM/yyyy")</div>
+                            }
+                            else
+                            {
+                                <span class="badge badge-pending">Pendente</span>
+                            }
+                        </td>
+                        <td>
+                            <button class="btn-ghost" @onclick="() => ToggleAudit(entry.UserId)">
+                                <span class="material-symbols-outlined">search</span>
+                            </button>
+                        </td>
+                        <td>
+                            @if (!entry.PrizeAwarded)
+                            {
+                                <button class="btn-primary btn-sm" @onclick="() => AwardPrize(entry.Id)">
+                                    Marcar enviado
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                    @if (_auditUserId == entry.UserId && _auditSessions is not null)
+                    {
+                        <tr class="audit-row">
+                            <td colspan="7">
+                                <div class="audit-panel">
+                                    <h4>Auditoria de Sessões – @(entry.UserName)</h4>
+                                    @if (_auditSessions.Count == 0)
+                                    {
+                                        <p>Nenhuma sessão encontrada.</p>
+                                    }
+                                    else
+                                    {
+                                        <table class="audit-table">
+                                            <thead><tr><th>Data</th><th>Páginas</th><th>Tempo</th><th>Alerta</th></tr></thead>
+                                            <tbody>
+                                                @foreach (var s in _auditSessions)
+                                                {
+                                                    <tr class="@(s.SuspiciousFlag is not null ? "suspicious" : "")">
+                                                        <td>@s.Date.ToString("dd/MM HH:mm")</td>
+                                                        <td>@s.StartPage → @s.EndPage</td>
+                                                        <td>@FormatMinutes(s.MinutesRead)</td>
+                                                        <td>@(s.SuspiciousFlag ?? "–")</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    rank++;
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<ChampionshipView>? _entries;
+    private int _month = DateTime.Now.Month;
+    private int _year = DateTime.Now.Year;
+    private Guid? _auditUserId;
+    private List<UserSessionAudit>? _auditSessions;
+
+    private string _monthName => new DateTime(_year, _month, 1).ToString("MMMM");
+
+    protected override async Task OnInitializedAsync() => await LoadData();
+
+    private async Task LoadData()
+    {
+        _entries = await AdminService.GetMonthlyRankingAsync(_year, _month);
+        _auditUserId = null;
+        _auditSessions = null;
+    }
+
+    private async Task ToggleAudit(Guid userId)
+    {
+        if (_auditUserId == userId) { _auditUserId = null; _auditSessions = null; return; }
+        _auditUserId = userId;
+        _auditSessions = await AdminService.GetUserAuditAsync(userId, _year, _month);
+    }
+
+    private async Task AwardPrize(Guid entryId)
+    {
+        await AdminService.MarkPrizeAwardedAsync(entryId, "admin");
+        await LoadData();
+    }
+
+    private static string FormatMinutes(int m) => m < 60 ? $"{m}min" : $"{m / 60}h {m % 60}min";
+}

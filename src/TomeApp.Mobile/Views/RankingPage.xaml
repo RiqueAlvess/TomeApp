@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:TomeApp.Mobile.ViewModels"
+             xmlns:svc="clr-namespace:TomeApp.Mobile.Services"
+             x:Class="TomeApp.Mobile.Views.RankingPage"
+             x:DataType="vm:RankingViewModel"
+             Title="Campeonato BR">
+
+    <RefreshView Command="{Binding LoadRankingCommand}" IsRefreshing="{Binding IsLoading}">
+        <ScrollView>
+            <StackLayout Padding="20" Spacing="20">
+
+                <!-- Hero Banner -->
+                <Border BackgroundColor="{StaticResource Primary}" StrokeShape="RoundRectangle 20" Padding="20">
+                    <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="8">
+                        <Label Grid.Row="0" Text="🏆 CAMPEONATO MENSAL BR" FontSize="12" FontFamily="InterSemiBold"
+                               TextColor="#ffb2bb" LetterSpacing="2" />
+                        <Label Grid.Row="1" Text="Leia mais e ganhe R$ 100" FontFamily="PlayfairBold" FontSize="24" TextColor="White" />
+                        <Label Grid.Row="2" Text="Vale-Presente Amazon Brasil para o maior leitor do mês"
+                               FontSize="13" TextColor="#ffdbca" />
+                    </Grid>
+                </Border>
+
+                <!-- My Stats -->
+                <Border StrokeShape="RoundRectangle 16" BackgroundColor="{StaticResource SurfaceContainer}"
+                        Stroke="{StaticResource OutlineVariant}" StrokeThickness="1" Padding="16">
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+                        <StackLayout Grid.Column="0" Spacing="4" HorizontalOptions="Center">
+                            <Label Text="🎯 Minha posição" FontSize="12" TextColor="{StaticResource OnSurfaceVariant}" HorizontalOptions="Center" />
+                            <Label Text="{Binding MyRank, StringFormat='#{0}'}" FontFamily="PlayfairBold" FontSize="28"
+                                   TextColor="{StaticResource Primary}" HorizontalOptions="Center" />
+                        </StackLayout>
+                        <StackLayout Grid.Column="1" Spacing="4" HorizontalOptions="Center">
+                            <Label Text="⏱ Meu tempo" FontSize="12" TextColor="{StaticResource OnSurfaceVariant}" HorizontalOptions="Center" />
+                            <Label Text="{Binding MyMinutes, StringFormat='{0}min'}" FontFamily="PlayfairBold" FontSize="28"
+                                   TextColor="{StaticResource Secondary}" HorizontalOptions="Center" />
+                        </StackLayout>
+                        <StackLayout Grid.Column="2" Spacing="4" HorizontalOptions="Center">
+                            <Label Text="📅 Dias restantes" FontSize="12" TextColor="{StaticResource OnSurfaceVariant}" HorizontalOptions="Center" />
+                            <Label Text="{Binding DaysLeft}" FontFamily="PlayfairBold" FontSize="28"
+                                   TextColor="{StaticResource OnSurface}" HorizontalOptions="Center" />
+                        </StackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- Status Message -->
+                <Label Text="{Binding StatusMessage}" TextColor="{StaticResource OnSurfaceVariant}"
+                       HorizontalOptions="Center" IsVisible="{Binding StatusMessage, Converter={StaticResource StringNotEmptyConverter}}" />
+
+                <!-- Ranking List -->
+                <Label Text="Placar Geral" FontFamily="PlayfairBold" FontSize="20" TextColor="{StaticResource OnSurface}" />
+
+                <BindableLayout.ItemsSource>
+                    <Binding Path="Entries" />
+                </BindableLayout.ItemsSource>
+                <StackLayout BindableLayout.ItemsSource="{Binding Entries}" Spacing="8">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="svc:RankingEntry">
+                            <Border StrokeShape="RoundRectangle 12" BackgroundColor="White"
+                                    Stroke="{StaticResource OutlineVariant}" StrokeThickness="0.5" Padding="16,12">
+                                <Grid ColumnDefinitions="44,*,Auto" ColumnSpacing="12">
+                                    <!-- Rank -->
+                                    <Label Grid.Column="0" FontFamily="PlayfairBold" FontSize="22"
+                                           TextColor="{StaticResource Primary}" HorizontalOptions="Center" VerticalOptions="Center">
+                                        <Label.Text>
+                                            <Binding Path="Rank" StringFormat="#{0}" />
+                                        </Label.Text>
+                                    </Label>
+                                    <!-- Name -->
+                                    <StackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                        <Label Text="{Binding Name}" FontFamily="InterSemiBold" FontSize="15"
+                                               TextColor="{StaticResource OnSurface}" />
+                                    </StackLayout>
+                                    <!-- Time -->
+                                    <Label Grid.Column="2" Text="{Binding TotalMinutesRead, StringFormat='{0}min'}"
+                                           FontFamily="InterSemiBold" FontSize="14"
+                                           TextColor="{StaticResource Secondary}" VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </StackLayout>
+
+            </StackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>
