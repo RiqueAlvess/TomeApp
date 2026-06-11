@@ -54,7 +54,6 @@ else
                 @foreach (var entry in _entries)
                 {
                     var rowClass = rank <= 3 ? "top-rank" : "";
-                    var auditRowClass = s_SuspiciousClass;
                     <tr class="@rowClass">
                         <td>
                             @if (rank == 1)
@@ -149,8 +148,6 @@ else
 }
 
 @code {
-    private static readonly string s_SuspiciousClass = string.Empty;
-
     private List<ChampionshipView>? _entries;
     private int _month = DateTime.Now.Month;
     private int _year = DateTime.Now.Year;
