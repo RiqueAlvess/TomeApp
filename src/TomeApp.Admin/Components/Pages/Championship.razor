@@ -15,7 +15,7 @@
         @for (int m = 1; m <= 12; m++)
         {
             var mv = m;
-            <option value="@mv">@new DateTime(2024, mv, 1).ToString("MMMM")</option>
+            <option value="@mv">@(new DateTime(2024, mv, 1).ToString("MMMM"))</option>
         }
     </select>
     <select @bind="_year" @bind:after="LoadData">
@@ -140,7 +140,7 @@ else
                             </td>
                         </tr>
                     }
-                    @{ rank++; }
+                    rank++;
                 }
             </tbody>
         </table>
