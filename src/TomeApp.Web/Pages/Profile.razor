@@ -1,0 +1,61 @@
+@page "/profile"
+@inject AuthService Auth
+@inject ApiService Api
+@inject NavigationManager Nav
+
+<PageTitle>Perfil – TomeApp</PageTitle>
+
+<div class="page-container">
+    <div class="profile-header">
+        <div class="avatar-circle">
+            <span class="material-symbols-outlined">person</span>
+        </div>
+        <h2 class="profile-name">@(Auth.CurrentUser?.Name ?? "–")</h2>
+        <p class="profile-email">@(Auth.CurrentUser?.Name ?? "")</p>
+    </div>
+
+    @if (_profile is not null)
+    {
+        <div class="stats-row">
+            <div class="stat-card glass-card">
+                <div class="stat-val">@FormatMinutes(_profile.TotalMinutesRead)</div>
+                <div class="stat-lbl">Tempo lido</div>
+            </div>
+            <div class="stat-card glass-card">
+                <div class="stat-val">@_profile.BooksFinished</div>
+                <div class="stat-lbl">Livros lidos</div>
+            </div>
+            <div class="stat-card glass-card">
+                <div class="stat-val">@_profile.CurrentStreak</div>
+                <div class="stat-lbl">Dias seguidos</div>
+            </div>
+        </div>
+    }
+
+    <div class="menu-list">
+        <div class="menu-item" @onclick="LogoutAsync">
+            <span class="material-symbols-outlined menu-icon danger">logout</span>
+            <span class="menu-label danger">Sair da conta</span>
+            <span class="material-symbols-outlined menu-arrow">chevron_right</span>
+        </div>
+    </div>
+</div>
+
+@code {
+    private UserProfile? _profile;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Auth.InitializeAsync();
+        if (!Auth.IsAuthenticated) { Nav.NavigateTo("/login", replace: true); return; }
+        _profile = await Api.GetProfileAsync();
+    }
+
+    private async Task LogoutAsync()
+    {
+        await Auth.LogoutAsync();
+        Nav.NavigateTo("/login", replace: true);
+    }
+
+    private static string FormatMinutes(int m) => m < 60 ? $"{m}min" : $"{m / 60}h";
+}

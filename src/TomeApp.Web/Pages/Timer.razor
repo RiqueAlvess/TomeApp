@@ -1,0 +1,181 @@
+@page "/timer"
+@inject AuthService Auth
+@inject ApiService Api
+@inject OfflineSyncService Sync
+@inject NavigationManager Nav
+@implements IDisposable
+
+<PageTitle>Cronômetro – TomeApp</PageTitle>
+
+<div class="timer-screen">
+    <div class="timer-header">
+        <h1 class="timer-title">Cronômetro</h1>
+        <p class="timer-sub">Registre sua sessão de leitura</p>
+    </div>
+
+    <div class="timer-display">
+        <div class="timer-ring @(_running ? "running" : "")">
+            <svg viewBox="0 0 200 200">
+                <circle cx="100" cy="100" r="88" class="ring-bg" />
+                <circle cx="100" cy="100" r="88" class="ring-progress"
+                        stroke-dasharray="553"
+                        stroke-dashoffset="@_dashOffset" />
+            </svg>
+            <div class="timer-time">@FormatTime(_elapsed)</div>
+        </div>
+    </div>
+
+    <div class="timer-controls">
+        @if (!_running && _elapsed == TimeSpan.Zero)
+        {
+            <button class="btn-timer-start" @onclick="Start">
+                <span class="material-symbols-outlined">play_arrow</span>
+                Iniciar
+            </button>
+        }
+        else if (_running)
+        {
+            <button class="btn-timer-pause" @onclick="Pause">
+                <span class="material-symbols-outlined">pause</span>
+                Pausar
+            </button>
+        }
+        else
+        {
+            <div class="timer-action-row">
+                <button class="btn-timer-resume" @onclick="Start">
+                    <span class="material-symbols-outlined">play_arrow</span>
+                    Continuar
+                </button>
+                <button class="btn-timer-save" @onclick="() => _showSave = true">
+                    <span class="material-symbols-outlined">save</span>
+                    Salvar
+                </button>
+                <button class="btn-timer-reset" @onclick="Reset">
+                    <span class="material-symbols-outlined">restart_alt</span>
+                </button>
+            </div>
+        }
+    </div>
+
+    @if (_showSave)
+    {
+        <div class="save-panel glass-card">
+            <h3>Salvar sessão</h3>
+            <div class="form-group">
+                <label>Livro</label>
+                <select @bind="_selectedBookId" class="form-input">
+                    <option value="">Selecione um livro...</option>
+                    @foreach (var b in _books)
+                    {
+                        <option value="@b.Id">@b.Title</option>
+                    }
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Página inicial</label>
+                    <input type="number" @bind="_startPage" class="form-input" min="0" />
+                </div>
+                <div class="form-group">
+                    <label>Página final</label>
+                    <input type="number" @bind="_endPage" class="form-input" min="0" />
+                </div>
+            </div>
+            @if (!string.IsNullOrEmpty(_saveError))
+            {
+                <div class="error-msg">@_saveError</div>
+            }
+            @if (_saved)
+            {
+                <div class="success-msg">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    Sessão salva!
+                </div>
+            }
+            <div class="save-row">
+                <button class="btn-outline" @onclick="() => _showSave = false">Cancelar</button>
+                <button class="btn-primary" @onclick="SaveAsync" disabled="@_saving">
+                    @(_saving ? "Salvando..." : "Confirmar")
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private bool _running, _showSave, _saving, _saved;
+    private TimeSpan _elapsed = TimeSpan.Zero;
+    private System.Threading.Timer? _timer;
+    private DateTime _startedAt;
+    private List<BookDto> _books = [];
+    private string _selectedBookId = "", _saveError = "";
+    private int _startPage, _endPage;
+
+    private double _dashOffset => 553 - (553 * Math.Min(_elapsed.TotalMinutes, 60) / 60);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Auth.InitializeAsync();
+        if (!Auth.IsAuthenticated) { Nav.NavigateTo("/login", replace: true); return; }
+        _books = (await Api.GetBooksAsync()).Where(b => b.Status == "reading").ToList();
+    }
+
+    private void Start()
+    {
+        _running = true;
+        _startedAt = DateTime.UtcNow - _elapsed;
+        _timer = new System.Threading.Timer(_ =>
+        {
+            _elapsed = DateTime.UtcNow - _startedAt;
+            InvokeAsync(StateHasChanged);
+        }, null, 0, 1000);
+    }
+
+    private void Pause()
+    {
+        _running = false;
+        _timer?.Dispose();
+        _timer = null;
+    }
+
+    private void Reset()
+    {
+        Pause();
+        _elapsed = TimeSpan.Zero;
+        _showSave = false;
+        _saved = false;
+    }
+
+    private async Task SaveAsync()
+    {
+        _saveError = "";
+        if (string.IsNullOrEmpty(_selectedBookId)) { _saveError = "Selecione um livro."; return; }
+        if (_endPage <= _startPage) { _saveError = "Página final deve ser maior que a inicial."; return; }
+
+        _saving = true;
+        var session = new SyncSessionRequest(
+            Guid.Parse(_selectedBookId),
+            _startPage, _endPage,
+            (int)_elapsed.TotalMinutes,
+            DateTime.UtcNow);
+
+        var ok = await Api.SyncSessionsAsync([session]);
+        if (!ok)
+            await Sync.EnqueueSessionAsync(session);
+
+        await Api.UpdateProgressAsync(Guid.Parse(_selectedBookId), _endPage);
+
+        _saving = false;
+        _saved = true;
+        await Task.Delay(1500);
+        Reset();
+    }
+
+    private static string FormatTime(TimeSpan t) => $"{(int)t.TotalHours:D2}:{t.Minutes:D2}:{t.Seconds:D2}";
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+    }
+}

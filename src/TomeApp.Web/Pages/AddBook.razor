@@ -1,0 +1,74 @@
+@page "/add-book"
+@inject AuthService Auth
+@inject ApiService Api
+@inject NavigationManager Nav
+
+<PageTitle>Adicionar livro – TomeApp</PageTitle>
+
+<div class="page-container">
+    <div class="page-header-row">
+        <button class="btn-back" @onclick='() => Nav.NavigateTo("/")'>
+            <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <h1 class="page-title">Novo livro</h1>
+        <div></div>
+    </div>
+
+    <div class="add-form glass-card">
+        <div class="form-group">
+            <label>Título *</label>
+            <input type="text" @bind="_title" class="form-input" placeholder="Nome do livro" />
+        </div>
+        <div class="form-group">
+            <label>Autor *</label>
+            <input type="text" @bind="_author" class="form-input" placeholder="Nome do autor" />
+        </div>
+        <div class="form-group">
+            <label>Total de páginas *</label>
+            <input type="number" @bind="_totalPages" class="form-input" min="1" />
+        </div>
+        <div class="form-group">
+            <label>URL da capa (opcional)</label>
+            <input type="url" @bind="_coverUrl" class="form-input" placeholder="https://..." />
+        </div>
+
+        @if (!string.IsNullOrEmpty(_error))
+        {
+            <div class="error-msg">@_error</div>
+        }
+
+        <button class="btn-primary btn-full" @onclick="SaveAsync" disabled="@_saving">
+            @(_saving ? "Adicionando..." : "Adicionar à estante")
+        </button>
+    </div>
+</div>
+
+@code {
+    private string _title = "", _author = "", _coverUrl = "", _error = "";
+    private int _totalPages = 1;
+    private bool _saving;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Auth.InitializeAsync();
+        if (!Auth.IsAuthenticated) Nav.NavigateTo("/login", replace: true);
+    }
+
+    private async Task SaveAsync()
+    {
+        _error = "";
+        if (string.IsNullOrWhiteSpace(_title) || string.IsNullOrWhiteSpace(_author) || _totalPages < 1)
+        {
+            _error = "Preencha título, autor e total de páginas.";
+            return;
+        }
+        _saving = true;
+        var book = await Api.AddBookAsync(new AddBookRequest(_title, _author, _totalPages,
+            string.IsNullOrWhiteSpace(_coverUrl) ? null : _coverUrl));
+        _saving = false;
+        if (book is not null)
+            Nav.NavigateTo("/");
+        else
+            _error = "Não foi possível adicionar o livro.";
+    }
+}

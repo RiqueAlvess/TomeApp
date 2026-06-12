@@ -1,0 +1,131 @@
+@page "/"
+@inject AuthService Auth
+@inject ApiService Api
+@inject NavigationManager Nav
+
+<PageTitle>Estante – TomeApp</PageTitle>
+
+<div class="page-container">
+    <div class="page-header-row">
+        <div>
+            <h1 class="page-title">Estante</h1>
+            <p class="page-sub">Olá, @(Auth.CurrentUser?.Name?.Split(' ')[0] ?? "leitor")</p>
+        </div>
+        <a href="/add-book" class="btn-fab">
+            <span class="material-symbols-outlined">add</span>
+        </a>
+    </div>
+
+    @if (_books is null)
+    {
+        <div class="loading-state">
+            <div class="spinner-lg"></div>
+            <p>Carregando...</p>
+        </div>
+    }
+    else
+    {
+        var reading = _books.Where(b => b.Status == "reading").ToList();
+        var want = _books.Where(b => b.Status == "want_to_read").ToList();
+        var finished = _books.Where(b => b.Status == "finished").ToList();
+
+        @if (reading.Count > 0)
+        {
+            <section class="book-section">
+                <h2 class="section-title">Lendo agora</h2>
+                @foreach (var book in reading)
+                {
+                    <a href="/book/@book.Id" class="book-card-reading glass-card">
+                        <div class="book-cover" style="background: var(--gradient)">
+                            @if (!string.IsNullOrEmpty(book.CoverUrl))
+                            {
+                                <img src="@book.CoverUrl" alt="@book.Title" />
+                            }
+                            else
+                            {
+                                <span class="material-symbols-outlined cover-icon">menu_book</span>
+                            }
+                        </div>
+                        <div class="book-info">
+                            <div class="book-title">@book.Title</div>
+                            <div class="book-author">@book.Author</div>
+                            <div class="progress-bar-wrap">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="@($"width: {book.Progress:F0}%")"></div>
+                                </div>
+                                <span class="progress-pct">@book.Progress.ToString("F0")%</span>
+                            </div>
+                            <div class="page-count">pág. @book.CurrentPage / @book.TotalPages</div>
+                        </div>
+                    </a>
+                }
+            </section>
+        }
+
+        @if (want.Count > 0)
+        {
+            <section class="book-section">
+                <h2 class="section-title">Quero ler</h2>
+                <div class="book-grid">
+                    @foreach (var book in want)
+                    {
+                        <a href="/book/@book.Id" class="book-tile glass-card">
+                            <div class="tile-cover" style="background: var(--gradient)">
+                                @if (!string.IsNullOrEmpty(book.CoverUrl))
+                                {
+                                    <img src="@book.CoverUrl" alt="@book.Title" />
+                                }
+                                else
+                                {
+                                    <span class="material-symbols-outlined">menu_book</span>
+                                }
+                            </div>
+                            <div class="tile-title">@book.Title</div>
+                            <div class="tile-author">@book.Author</div>
+                        </a>
+                    }
+                </div>
+            </section>
+        }
+
+        @if (finished.Count > 0)
+        {
+            <section class="book-section">
+                <h2 class="section-title">Concluídos</h2>
+                <div class="book-grid">
+                    @foreach (var book in finished)
+                    {
+                        <a href="/book/@book.Id" class="book-tile glass-card finished">
+                            <div class="tile-cover" style="background: var(--gradient)">
+                                <span class="finish-badge material-symbols-outlined">check_circle</span>
+                            </div>
+                            <div class="tile-title">@book.Title</div>
+                            <div class="tile-author">@book.Author</div>
+                        </a>
+                    }
+                </div>
+            </section>
+        }
+
+        @if (_books.Count == 0)
+        {
+            <div class="empty-state">
+                <span class="material-symbols-outlined empty-icon">auto_stories</span>
+                <h3>Sua estante está vazia</h3>
+                <p>Adicione seu primeiro livro para começar</p>
+                <a href="/add-book" class="btn-primary">Adicionar livro</a>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private List<BookDto>? _books;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Auth.InitializeAsync();
+        if (!Auth.IsAuthenticated) { Nav.NavigateTo("/login", replace: true); return; }
+        _books = await Api.GetBooksAsync();
+    }
+}

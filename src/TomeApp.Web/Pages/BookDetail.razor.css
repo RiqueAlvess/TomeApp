@@ -1,0 +1,64 @@
+.book-detail { min-height: 100dvh; background: var(--surface); }
+
+.detail-hero {
+    position: relative;
+    padding: 60px 24px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    color: #fff;
+}
+
+.btn-back-white {
+    position: absolute;
+    top: 16px; left: 16px;
+    background: rgba(255,255,255,.2);
+    border: none;
+    border-radius: 50%;
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: #fff;
+    backdrop-filter: blur(4px);
+}
+
+.hero-cover {
+    width: 120px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.3);
+}
+
+.hero-cover-placeholder {
+    width: 120px; height: 180px;
+    border-radius: 12px;
+    background: rgba(255,255,255,.2);
+    display: flex; align-items: center; justify-content: center;
+}
+
+.hero-cover-placeholder .material-symbols-outlined { font-size: 48px; color: rgba(255,255,255,.7); }
+
+.hero-info { text-align: center; }
+.hero-title { font-family: 'Playfair Display', serif; font-size: 22px; margin: 0; }
+.hero-author { font-family: 'Inter', sans-serif; font-size: 14px; opacity: .8; margin: 4px 0 0; }
+
+.detail-body { padding: 20px 16px 100px; display: flex; flex-direction: column; gap: 20px; }
+
+.progress-section { padding: 20px; border-radius: 16px; }
+.progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; }
+.progress-pct-lg { font-size: 18px; font-weight: 700; color: var(--primary); }
+.page-count { font-family: 'Inter', sans-serif; font-size: 12px; color: #888; margin: 8px 0 16px; }
+
+.update-row { display: flex; gap: 12px; align-items: center; }
+.page-input { width: 100px; }
+
+.notes-section { display: flex; flex-direction: column; gap: 12px; }
+.note-add { padding: 16px; border-radius: 16px; display: flex; flex-direction: column; gap: 12px; }
+.note-ta { min-height: 80px; resize: vertical; }
+
+.note-card { padding: 16px; border-radius: 14px; }
+.note-page { font-size: 11px; color: var(--primary); font-weight: 600; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+.note-text { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--on-surface); line-height: 1.5; }
+.note-date { font-size: 11px; color: #bbb; margin-top: 8px; font-family: 'Inter', sans-serif; }

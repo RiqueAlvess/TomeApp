@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>TomeApp</title>
+    <base href="/" />
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#b32349" />
+
+    <!-- Apple PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="TomeApp" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+    <!-- Android -->
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- SEO / Social -->
+    <meta name="description" content="TomeApp – seu diário de leitura. Registre livros, sessões de leitura e participe do campeonato mensal." />
+    <meta name="application-name" content="TomeApp" />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="stylesheet" href="TomeApp.Web.styles.css" />
+</head>
+<body>
+    <div id="app">
+        <div style="min-height:100dvh;display:flex;align-items:center;justify-content:center;background:#fff8f5;">
+            <div style="text-align:center;">
+                <div style="width:72px;height:72px;background:linear-gradient(135deg,#b32349,#944a19);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+                    <svg width="38" height="38" viewBox="0 0 24 24" fill="white"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H6V4h2v8l2.5-1.5L13 12V4h5v16z"/></svg>
+                </div>
+                <p style="font-family:'Inter',sans-serif;color:#888;font-size:14px;">Carregando TomeApp...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="blazor-error-ui">
+        Ocorreu um erro.
+        <a href="" class="reload">Recarregar</a>
+        <a class="dismiss">✕</a>
+    </div>
+
+    <script src="_framework/blazor.webassembly.js"></script>
+    <script>
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js');
+        }
+    </script>
+</body>
+</html>

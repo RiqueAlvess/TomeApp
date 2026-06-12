@@ -1,0 +1,112 @@
+@page "/ranking"
+@inject AuthService Auth
+@inject ApiService Api
+@inject NavigationManager Nav
+
+<PageTitle>Ranking – TomeApp</PageTitle>
+
+<div class="page-container">
+    <div class="page-header-row">
+        <div>
+            <h1 class="page-title">Campeonato</h1>
+            <p class="page-sub">Ranking Mensal Brasil – @_monthName/@_year</p>
+        </div>
+    </div>
+
+    <div class="filter-row">
+        <select @bind="_month" @bind:after="LoadAsync" class="filter-select">
+            @for (int m = 1; m <= 12; m++)
+            {
+                var mv = m;
+                <option value="@mv">@(new DateTime(2024, mv, 1).ToString("MMMM"))</option>
+            }
+        </select>
+        <select @bind="_year" @bind:after="LoadAsync" class="filter-select">
+            @for (int y = DateTime.Now.Year; y >= 2024; y--)
+            {
+                <option value="@y">@y</option>
+            }
+        </select>
+    </div>
+
+    @if (_entries is null)
+    {
+        <div class="loading-state"><div class="spinner-lg"></div></div>
+    }
+    else if (_entries.Count == 0)
+    {
+        <div class="empty-state">
+            <span class="material-symbols-outlined empty-icon">leaderboard</span>
+            <h3>Nenhum dado para este período</h3>
+        </div>
+    }
+    else
+    {
+        var top3 = _entries.Take(3).ToList();
+        var rest = _entries.Skip(3).ToList();
+
+        <div class="podium-row">
+            @if (top3.Count > 1)
+            {
+                <div class="podium-card silver">
+                    <div class="podium-medal">🥈</div>
+                    <div class="podium-name">@top3[1].UserName</div>
+                    <div class="podium-time">@FormatMinutes(top3[1].TotalMinutesRead)</div>
+                    <div class="podium-base p2">2°</div>
+                </div>
+            }
+            @if (top3.Count > 0)
+            {
+                <div class="podium-card gold @(top3[0].IsCurrentUser ? "is-me" : "")">
+                    <div class="podium-crown">👑</div>
+                    <div class="podium-medal">🥇</div>
+                    <div class="podium-name">@top3[0].UserName</div>
+                    <div class="podium-time">@FormatMinutes(top3[0].TotalMinutesRead)</div>
+                    <div class="podium-base p1">1°</div>
+                </div>
+            }
+            @if (top3.Count > 2)
+            {
+                <div class="podium-card bronze">
+                    <div class="podium-medal">🥉</div>
+                    <div class="podium-name">@top3[2].UserName</div>
+                    <div class="podium-time">@FormatMinutes(top3[2].TotalMinutesRead)</div>
+                    <div class="podium-base p3">3°</div>
+                </div>
+            }
+        </div>
+
+        @if (rest.Count > 0)
+        {
+            <div class="ranking-list">
+                @foreach (var e in rest)
+                {
+                    <div class="ranking-row @(e.IsCurrentUser ? "is-me" : "")">
+                        <span class="rank-pos">@e.Position</span>
+                        <span class="rank-name">@e.UserName</span>
+                        <span class="rank-time">@FormatMinutes(e.TotalMinutesRead)</span>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private List<RankingEntry>? _entries;
+    private int _month = DateTime.Now.Month;
+    private int _year = DateTime.Now.Year;
+    private string _monthName => new DateTime(_year, _month, 1).ToString("MMMM");
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Auth.InitializeAsync();
+        if (!Auth.IsAuthenticated) { Nav.NavigateTo("/login", replace: true); return; }
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+        => _entries = await Api.GetRankingAsync(_year, _month);
+
+    private static string FormatMinutes(int m) => m < 60 ? $"{m}min" : $"{m / 60}h {m % 60}min";
+}

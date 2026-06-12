@@ -1,0 +1,120 @@
+@page "/book/{Id:guid}"
+@inject AuthService Auth
+@inject ApiService Api
+@inject NavigationManager Nav
+
+<PageTitle>@(_book?.Title ?? "Livro") – TomeApp</PageTitle>
+
+<div class="book-detail">
+    <div class="detail-hero" style="background: var(--gradient)">
+        <button class="btn-back-white" @onclick='() => Nav.NavigateTo("/")'>
+            <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        @if (_book is not null)
+        {
+            @if (!string.IsNullOrEmpty(_book.CoverUrl))
+            {
+                <img src="@_book.CoverUrl" alt="@_book.Title" class="hero-cover" />
+            }
+            else
+            {
+                <div class="hero-cover-placeholder">
+                    <span class="material-symbols-outlined">menu_book</span>
+                </div>
+            }
+            <div class="hero-info">
+                <h1 class="hero-title">@_book.Title</h1>
+                <p class="hero-author">@_book.Author</p>
+            </div>
+        }
+    </div>
+
+    @if (_book is not null)
+    {
+        <div class="detail-body">
+            <div class="progress-section glass-card">
+                <div class="progress-header">
+                    <span>Progresso</span>
+                    <span class="progress-pct-lg">@_book.Progress.ToString("F0")%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="@($"width: {_book.Progress:F0}%")"></div>
+                </div>
+                <p class="page-count">Página @_book.CurrentPage de @_book.TotalPages</p>
+
+                <div class="update-row">
+                    <input type="number" @bind="_newPage" class="form-input page-input" min="0" max="@_book.TotalPages" />
+                    <button class="btn-primary" @onclick="UpdateProgressAsync" disabled="@_updating">
+                        Atualizar
+                    </button>
+                </div>
+            </div>
+
+            <div class="notes-section">
+                <h3 class="section-title">Notas</h3>
+                <div class="note-add glass-card">
+                    <input type="number" @bind="_notePage" class="form-input" placeholder="Página" min="1" />
+                    <textarea @bind="_noteContent" class="form-input note-ta" placeholder="Escreva uma nota..."></textarea>
+                    <button class="btn-primary btn-full" @onclick="AddNoteAsync" disabled="@_addingNote">
+                        Adicionar nota
+                    </button>
+                </div>
+                @if (_notes is not null && _notes.Count > 0)
+                {
+                    @foreach (var note in _notes)
+                    {
+                        <div class="note-card glass-card">
+                            <div class="note-page">Pág. @note.Page</div>
+                            <div class="note-text">@note.Content</div>
+                            <div class="note-date">@note.CreatedAt.ToString("dd/MM/yyyy")</div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    private BookDto? _book;
+    private List<NoteDto>? _notes;
+    private int _newPage, _notePage;
+    private string _noteContent = "";
+    private bool _updating, _addingNote;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Auth.InitializeAsync();
+        if (!Auth.IsAuthenticated) { Nav.NavigateTo("/login", replace: true); return; }
+        _book = await Api.GetBookAsync(Id);
+        if (_book is not null)
+        {
+            _newPage = _book.CurrentPage;
+            _notes = await Api.GetNotesAsync(Id);
+        }
+    }
+
+    private async Task UpdateProgressAsync()
+    {
+        if (_book is null) return;
+        _updating = true;
+        var ok = await Api.UpdateProgressAsync(Id, _newPage);
+        if (ok) _book.CurrentPage = _newPage;
+        _updating = false;
+    }
+
+    private async Task AddNoteAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_noteContent)) return;
+        _addingNote = true;
+        var ok = await Api.AddNoteAsync(Id, new AddNoteRequest(_notePage, _noteContent));
+        if (ok)
+        {
+            _noteContent = "";
+            _notePage = 0;
+            _notes = await Api.GetNotesAsync(Id);
+        }
+        _addingNote = false;
+    }
+}

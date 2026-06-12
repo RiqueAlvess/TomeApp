@@ -1,0 +1,93 @@
+@page "/login"
+@page "/register"
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+<PageTitle>TomeApp – Entrar</PageTitle>
+
+<div class="auth-screen">
+    <div class="auth-brand">
+        <div class="brand-icon">
+            <span class="material-symbols-outlined">auto_stories</span>
+        </div>
+        <h1 class="brand-name">TomeApp</h1>
+        <p class="brand-tagline">Seu diário de leitura</p>
+    </div>
+
+    <div class="auth-card glass-card">
+        <div class="tab-row">
+            <button class="tab-btn @(_isRegister ? "" : "active")" @onclick="() => _isRegister = false">Entrar</button>
+            <button class="tab-btn @(_isRegister ? "active" : "")" @onclick="() => _isRegister = true">Criar conta</button>
+        </div>
+
+        @if (_isRegister)
+        {
+            <div class="form-group">
+                <label>Nome</label>
+                <input type="text" @bind="_name" placeholder="Seu nome completo" class="form-input" />
+            </div>
+        }
+
+        <div class="form-group">
+            <label>E-mail</label>
+            <input type="email" @bind="_email" placeholder="seu@email.com" class="form-input" />
+        </div>
+        <div class="form-group">
+            <label>Senha</label>
+            <input type="password" @bind="_password" placeholder="••••••••" class="form-input" />
+        </div>
+
+        @if (!string.IsNullOrEmpty(_error))
+        {
+            <div class="error-msg">@_error</div>
+        }
+
+        <button class="btn-primary btn-full" @onclick="SubmitAsync" disabled="@_loading">
+            @if (_loading)
+            {
+                <span class="spinner"></span>
+            }
+            else
+            {
+                @(_isRegister ? "Criar conta" : "Entrar")
+            }
+        </button>
+    </div>
+</div>
+
+@code {
+    private bool _isRegister;
+    private string _name = "", _email = "", _password = "", _error = "";
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Auth.InitializeAsync();
+        if (Auth.IsAuthenticated)
+            Nav.NavigateTo("/", replace: true);
+
+        _isRegister = Nav.Uri.Contains("/register");
+    }
+
+    private async Task SubmitAsync()
+    {
+        _error = "";
+        if (string.IsNullOrWhiteSpace(_email) || string.IsNullOrWhiteSpace(_password))
+        {
+            _error = "Preencha todos os campos.";
+            return;
+        }
+        _loading = true;
+        bool ok;
+        if (_isRegister)
+            ok = await Auth.RegisterAsync(_name, _email, _password);
+        else
+            ok = await Auth.LoginAsync(_email, _password);
+
+        _loading = false;
+        if (ok)
+            Nav.NavigateTo("/", replace: true);
+        else
+            _error = _isRegister ? "Não foi possível criar a conta." : "E-mail ou senha inválidos.";
+    }
+}

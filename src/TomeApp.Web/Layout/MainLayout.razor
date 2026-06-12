@@ -1,0 +1,75 @@
+@inherits LayoutComponentBase
+@inject AuthService Auth
+@inject NavigationManager Nav
+@inject OfflineSyncService SyncService
+@implements IDisposable
+
+<div class="app-shell @(Auth.IsAuthenticated ? "authenticated" : "")">
+    @Body
+    @if (Auth.IsAuthenticated)
+    {
+        <nav class="bottom-nav">
+            <NavLink href="/" Match="NavLinkMatch.All" class="nav-item">
+                <span class="material-symbols-outlined">auto_stories</span>
+                <span class="nav-label">Estante</span>
+            </NavLink>
+            <NavLink href="/timer" class="nav-item">
+                <span class="material-symbols-outlined">timer</span>
+                <span class="nav-label">Cronômetro</span>
+            </NavLink>
+            <NavLink href="/ranking" class="nav-item">
+                <span class="material-symbols-outlined">leaderboard</span>
+                <span class="nav-label">Ranking</span>
+            </NavLink>
+            <NavLink href="/profile" class="nav-item">
+                <span class="material-symbols-outlined">person</span>
+                <span class="nav-label">Perfil</span>
+            </NavLink>
+        </nav>
+    }
+</div>
+
+@if (_syncPending > 0)
+{
+    <div class="sync-banner" @onclick="TrySyncAsync">
+        <span class="material-symbols-outlined">cloud_sync</span>
+        @_syncPending sessão(ões) offline — toque para sincronizar
+    </div>
+}
+
+@code {
+    private int _syncPending;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Auth.OnAuthChanged += OnAuthChanged;
+        if (Auth.IsAuthenticated)
+            _syncPending = await SyncService.PendingCountAsync();
+    }
+
+    private void OnAuthChanged()
+    {
+        InvokeAsync(async () =>
+        {
+            if (!Auth.IsAuthenticated)
+                Nav.NavigateTo("/login", replace: true);
+            else
+            {
+                _syncPending = await SyncService.PendingCountAsync();
+                StateHasChanged();
+            }
+        });
+    }
+
+    private async Task TrySyncAsync()
+    {
+        var synced = await SyncService.FlushAsync();
+        if (synced > 0)
+        {
+            _syncPending = 0;
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose() => Auth.OnAuthChanged -= OnAuthChanged;
+}
